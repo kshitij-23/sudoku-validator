@@ -1,0 +1,1 @@
+java -jar target/sudoku-validator-1.0.jar %1

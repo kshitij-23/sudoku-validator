@@ -14,33 +14,59 @@ public class SudokuValidator {
 
     public static void main(String[] args) throws IOException {
         System.out.println("Sudoku validator started with file name : "+args[0]);
-        int[][] array = SudokuValidator.readCsv(args[0]);
-        boolean b = SudokuValidator.validateArrayForZerosAndDuplicateInEachRow(array);
-        if(b)
-            System.out.println("VALID");
+        boolean validateCsvResult = SudokuValidator.validateCsv(args[0]);
+        if(validateCsvResult) {
+            int[][] array = SudokuValidator.readCsv(args[0]);
+            boolean b = SudokuValidator.validateArrayForZerosAndDuplicates(array);
+            if(b)
+                System.out.println("VALID");
+        }
         else
             System.out.println("INVALID");
+    }
+
+    public static final boolean validateCsv (String filePath) throws IOException {
+        Stream<String> lines = Files.lines(Paths.get(filePath));
+        long lineCount = lines.count();
+        if(lineCount == 0 || lineCount < 9)
+            return false;
+        lines = Files.lines(Paths.get(filePath));
+        lineCount = lines.filter(l -> !l.trim().isEmpty()).count();
+        if(lineCount < 9)
+            return false;
+        return true;
     }
 
     public static final int[][] readCsv(String filePath) throws IOException {
         Stream<String> lines = Files.lines(Paths.get(filePath));
         int[][] array = new int[9][9];
+        Map<String, int[][]> map = new HashMap<>();
+        map.put("arrayObj", array);
         AtomicInteger count = new AtomicInteger(0);
-        lines.forEach(l -> {
-            String[] line = l.split(",");
-            int rowCount = count.getAndIncrement();
-            if (line.length != 9)
-                System.out.println("CSV file is not valid");
-            else {
-                for (int j = 0; j < 9; j++) {
-                    array[rowCount][j] = Integer.parseInt(line[j]);
+        try {
+            lines.forEach(l -> {
+                if(!l.isEmpty()) {
+                    String[] line = l.split(",");
+                    int rowCount = count.getAndIncrement();
+                    if (line.length != 9) {
+                        System.out.println("CSV file is not valid");
+                        map.put("arrayObj", null);
+                    } else {
+                        for (int j = 0; j < 9; j++) {
+                            array[rowCount][j] = Integer.parseInt(line[j]);
+                        }
+                    }
+                } else {
+                    System.out.println("CSV file is not valid");
                 }
-            }
-        });
-        return array;
+            });
+        } catch (Exception e) {
+            map.put("arrayObj", null);
+        }
+        return map.get("arrayObj");
     }
 
-    public static final boolean validateArrayForZerosAndDuplicateInEachRow(int[][] array) {
+    public static final boolean validateArrayForZerosAndDuplicates(int[][] array) {
         for (int i = 0; i < array.length; i++) {
             Map<Integer, Integer> colMap = new TreeMap<>();
             Map<Integer, Integer> rowMap = new HashMap<>();

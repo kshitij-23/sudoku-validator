@@ -19,10 +19,12 @@ public class SudokuValidator {
             int[][] array = SudokuValidator.readCsv(args[0]);
             boolean b = SudokuValidator.validateArrayForZerosAndDuplicates(array);
             if(b)
-                System.out.println("VALID");
+                System.out.println("0");
+            else
+                System.out.println("1");
         }
         else
-            System.out.println("INVALID");
+            System.out.println("1");
     }
 
     public static final boolean validateCsv (String filePath) throws IOException {
